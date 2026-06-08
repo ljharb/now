@@ -1,6 +1,6 @@
 {
 	"name": "@ljharb/now",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "The current time in milliseconds, from the most precise monotonic clock available (`performance.now` → `process.hrtime` → `Date.now` → `new Date().getTime()`), for measuring elapsed time.",
 	"main": "index.js",
 	"exports": {
