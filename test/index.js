@@ -1,12 +1,15 @@
 'use strict';
 
+/** @template {object} T @typedef {Record<keyof T, T[keyof T]>} AsRecord */
+
 var test = require('tape');
 var mockProperty = require('mock-property');
+var semver = require('semver');
+
+var browserNow = require('../browser');
 var rerequire = require('./rerequire');
 
-var hasProcess = typeof process !== 'undefined'
-	&& !!process
-	&& typeof process.hrtime === 'function';
+var hasHrtime = semver.satisfies(process.version, '>= 0.7.6');
 
 test('now', function (t) {
 	var now = require('../');
@@ -21,8 +24,32 @@ test('now', function (t) {
 	t.end();
 });
 
+test('browser', function (t) {
+	t.equal(typeof browserNow, 'function', 'is a function');
+	t.equal(typeof browserNow(), 'number', 'returns a number');
+
+	var a = browserNow();
+	var b = browserNow();
+	t.ok(b >= a, 'is non-decreasing');
+
+	t.end();
+});
+
+test('browser, without performance', function (t) {
+	t.teardown(mockProperty(global, 'performance', { value: undefined }));
+	t.teardown(function () { rerequire(__dirname, '../browser'); });
+
+	/** @type {import('../browser')} */
+	var bNow = rerequire(__dirname, '../browser');
+
+	t.equal(bNow, Date.now, 'falls back to Date.now');
+	t.equal(typeof bNow(), 'number', 'returns a number');
+
+	t.end();
+});
+
 test('fallback tiers', function (t) {
-	t.test('process.hrtime tier', { skip: !hasProcess }, function (st) {
+	t.test('process.hrtime tier', { skip: !hasHrtime }, function (st) {
 		st.teardown(mockProperty(global, 'performance', { value: undefined }));
 		st.teardown(function () { rerequire(__dirname, '../'); });
 
@@ -36,12 +63,11 @@ test('fallback tiers', function (t) {
 
 	t.test('Date.now tier', function (st) {
 		st.teardown(mockProperty(global, 'performance', { value: undefined }));
-		if (hasProcess) {
+		if (hasHrtime) {
 			st.teardown(mockProperty(
-				/** @type {Record<keyof typeof process, typeof process[keyof typeof process]>} */
-				(process),
+				/** @type {AsRecord<typeof process>} */ (process),
 				'hrtime',
-				{ value: undefined }
+				{ 'delete': true }
 			));
 		}
 		st.teardown(function () { rerequire(__dirname, '../'); });
@@ -56,19 +82,17 @@ test('fallback tiers', function (t) {
 	});
 
 	t.test('new Date().getTime() tier', function (st) {
-		st.teardown(mockProperty(global, 'performance', { value: undefined }));
+		st.teardown(mockProperty(global, 'performance', { 'delete': true }));
 		st.teardown(mockProperty(
-			/** @type {Record<keyof DateConstructor, DateConstructor[keyof DateConstructor]>} */
-			(Date),
+			/** @type {AsRecord<DateConstructor>} */ (Date),
 			'now',
-			{ value: undefined }
+			{ 'delete': true }
 		));
-		if (hasProcess) {
+		if (hasHrtime) {
 			st.teardown(mockProperty(
-				/** @type {Record<keyof typeof process, typeof process[keyof typeof process]>} */
-				(process),
+				/** @type {AsRecord<typeof process>} */ (process),
 				'hrtime',
-				{ value: undefined }
+				{ 'delete': true }
 			));
 		}
 		st.teardown(function () {

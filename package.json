@@ -3,8 +3,16 @@
 	"version": "1.0.0",
 	"description": "The current time in milliseconds, from the most precise monotonic clock available (`performance.now` → `process.hrtime` → `Date.now` → `new Date().getTime()`), for measuring elapsed time.",
 	"main": "index.js",
+	"browser": "browser.js",
 	"exports": {
-		".": "./index.js",
+		".": [
+			{
+				"browser": "./browser.js",
+				"import": "./index.mjs",
+				"default": "./index.js"
+			},
+			"./index.js"
+		],
 		"./package.json": "./package.json"
 	},
 	"sideEffects": false,
@@ -58,6 +66,7 @@
 		"@ljharb/tsconfig": "^0.3.2",
 		"@types/get-intrinsic": "^1.2.3",
 		"@types/node": "^25.9.2",
+		"@types/semver": "^6.2.7",
 		"@types/tape": "^5.8.1",
 		"auto-changelog": "^2.6.0",
 		"eslint": "^10.4.1",
@@ -69,6 +78,7 @@
 		"nyc": "^10.3.2",
 		"resolve": "^2.0.0-next.7",
 		"safe-publish-latest": "^2.0.0",
+		"semver": "^6.3.1",
 		"tape": "^5.9.0",
 		"typescript": "next"
 	},

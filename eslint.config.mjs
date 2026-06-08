@@ -9,7 +9,7 @@ export default [
 		},
 	},
 	{
-		files: ['index.js'],
+		files: ['browser.js', 'index.js'],
 		rules: {
 			'new-cap': [
 				'error', {

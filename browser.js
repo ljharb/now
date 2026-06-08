@@ -8,7 +8,7 @@ var $getTime = callBound('Date.prototype.getTime');
 var $Date = GetIntrinsic('%Date%');
 var $now = GetIntrinsic('%Date.now%', true);
 
-/** @type {import('.')} */
+/** @type {import('./browser')} */
 module.exports = (function () {
 	if (
 		typeof performance !== 'undefined'
@@ -16,15 +16,6 @@ module.exports = (function () {
 		&& typeof performance.now === 'function'
 	) {
 		return callBind([performance.now, performance]);
-	}
-
-	if (typeof process !== 'undefined' && process && typeof process.hrtime === 'function') {
-		var hrtime = process.hrtime;
-
-		return function now() {
-			var hr = hrtime();
-			return (hr[0] * 1e3) + (hr[1] / 1e6);
-		};
 	}
 
 	return $now || function now() {
