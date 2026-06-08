@@ -6,16 +6,12 @@ export default [
 		rules: {
 			'func-style': ['error', 'declaration'],
 			'id-length': 'off',
-		},
-	},
-	{
-		files: ['browser.js', 'index.js'],
-		rules: {
 			'new-cap': [
 				'error', {
 					capIsNewExceptions: ['GetIntrinsic'],
 				},
 			],
+			'no-extra-parens': 'off',
 			'no-magic-numbers': 'off',
 		},
 	},

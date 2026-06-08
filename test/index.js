@@ -5,9 +5,9 @@
 var test = require('tape');
 var mockProperty = require('mock-property');
 var semver = require('semver');
+var requireStash = require('require-stash');
 
 var browserNow = require('../browser');
-var rerequire = require('./rerequire');
 
 var hasHrtime = semver.satisfies(process.version, '>= 0.7.6');
 
@@ -37,10 +37,10 @@ test('browser', function (t) {
 
 test('browser, without performance', function (t) {
 	t.teardown(mockProperty(global, 'performance', { value: undefined }));
-	t.teardown(function () { rerequire(__dirname, '../browser'); });
+	t.teardown(requireStash(__dirname, '../browser'));
 
 	/** @type {import('../browser')} */
-	var bNow = rerequire(__dirname, '../browser');
+	var bNow = require('../browser');
 
 	t.equal(bNow, Date.now, 'falls back to Date.now');
 	t.equal(typeof bNow(), 'number', 'returns a number');
@@ -51,10 +51,10 @@ test('browser, without performance', function (t) {
 test('fallback tiers', function (t) {
 	t.test('process.hrtime tier', { skip: !hasHrtime }, function (st) {
 		st.teardown(mockProperty(global, 'performance', { value: undefined }));
-		st.teardown(function () { rerequire(__dirname, '../'); });
+		st.teardown(requireStash(__dirname, '../'));
 
 		/** @type {import('../')} */
-		var now = rerequire(__dirname, '../');
+		var now = require('../');
 
 		st.equal(typeof now(), 'number', 'returns a number via process.hrtime');
 
@@ -70,10 +70,10 @@ test('fallback tiers', function (t) {
 				{ 'delete': true }
 			));
 		}
-		st.teardown(function () { rerequire(__dirname, '../'); });
+		st.teardown(requireStash(__dirname, '../'));
 
 		/** @type {import('../')} */
-		var actual = rerequire(__dirname, '../');
+		var actual = require('../');
 
 		st.equal(actual, Date.now, 'is Date.now');
 		st.equal(typeof actual(), 'number', 'returns a number via Date.now');
@@ -95,15 +95,11 @@ test('fallback tiers', function (t) {
 				{ 'delete': true }
 			));
 		}
-		st.teardown(function () {
-			rerequire(__dirname, 'get-intrinsic');
-			rerequire(__dirname, '../');
-		});
-
-		rerequire(__dirname, 'get-intrinsic');
+		st.teardown(requireStash(__dirname, 'get-intrinsic'));
+		st.teardown(requireStash(__dirname, '../'));
 
 		/** @type {import('../')} */
-		var actual = rerequire(__dirname, '../');
+		var actual = require('../');
 
 		st.equal(typeof actual(), 'number', 'returns a number via new Date().getTime()');
 
