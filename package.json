@@ -69,7 +69,6 @@
 		"@types/get-intrinsic": "^1.2.3",
 		"@types/node": "^25.9.2",
 		"@types/semver": "^6.2.7",
-		"@types/tape": "^5.8.1",
 		"auto-changelog": "^2.6.0",
 		"eslint": "^10.4.1",
 		"evalmd": "^0.0.19",
@@ -81,7 +80,7 @@
 		"require-stash": "^1.0.0",
 		"safe-publish-latest": "^2.0.0",
 		"semver": "^6.3.1",
-		"tape": "^5.9.0",
+		"tape": "^5.10.0",
 		"typescript": "next"
 	},
 	"engines": {
