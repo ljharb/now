@@ -2,6 +2,11 @@
 	"extends": "@ljharb/tsconfig",
 	"compilerOptions": {
 		"target": "es2021",
+		"lib": [
+			"es2021",
+			"dom",
+			"esnext.temporal",
+		],
 	},
 	"exclude": [
 		"coverage",

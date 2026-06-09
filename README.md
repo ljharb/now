@@ -7,7 +7,9 @@
 
 [![npm badge][npm-badge-png]][package-url]
 
-The current time, in milliseconds, from the most precise monotonic clock available - `performance.now()`, then `process.hrtime()`, then `Date.now()`, then `new Date().getTime()` (for ES3). Works in browsers and node, all the way back to ES3.
+The current time, in milliseconds, from the most precise monotonic clock available
+- `performance.now()`, then `process.hrtime()`, then `Temporal.Now.instant()`, then `Date.now()`, then `new Date().getTime()` (for ES3).
+Works in browsers and node, all the way back to ES3.
 
 The returned value has an arbitrary origin and is only meaningful relative to another call:
 subtract two readings to get an elapsed duration, in milliseconds.

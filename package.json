@@ -1,7 +1,7 @@
 {
 	"name": "@ljharb/now",
 	"version": "1.0.1",
-	"description": "The current time in milliseconds, from the most precise monotonic clock available (`performance.now` → `process.hrtime` → `Date.now` → `new Date().getTime()`), for measuring elapsed time.",
+	"description": "The current time in milliseconds, from the most precise monotonic clock available (`performance.now` → `process.hrtime` → `Temporal.Now` → `Date.now` → `new Date().getTime()`), for measuring elapsed time.",
 	"main": "index.js",
 	"browser": "browser.js",
 	"exports": {
@@ -43,6 +43,7 @@
 		"high-resolution",
 		"hrtime",
 		"performance.now",
+		"temporal",
 		"elapsed",
 		"duration"
 	],
@@ -58,7 +59,8 @@
 	"dependencies": {
 		"call-bind-apply-helpers": "^1.0.2",
 		"call-bound": "^1.0.4",
-		"get-intrinsic": "^1.3.0"
+		"get-intrinsic": "^1.3.0",
+		"gopd": "^1.2.0"
 	},
 	"devDependencies": {
 		"@arethetypeswrong/cli": "^0.18.3",

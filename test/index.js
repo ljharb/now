@@ -10,6 +10,7 @@ var requireStash = require('require-stash');
 var browserNow = require('../browser');
 
 var hasHrtime = semver.satisfies(process.version, '>= 0.7.6');
+var hasTemporal = typeof Temporal !== 'undefined';
 
 test('now', function (t) {
 	var now = require('../');
@@ -35,8 +36,21 @@ test('browser', function (t) {
 	t.end();
 });
 
-test('browser, without performance', function (t) {
-	t.teardown(mockProperty(global, 'performance', { value: undefined }));
+test('browser, without performance, with Temporal', { skip: !hasTemporal }, function (t) {
+	t.teardown(mockProperty(global, 'performance', { 'delete': true }));
+	t.teardown(requireStash(__dirname, '../browser'));
+
+	/** @type {import('../browser')} */
+	var bNow = require('../browser');
+
+	t.equal(typeof bNow(), 'number', 'falls back to Temporal.Now');
+
+	t.end();
+});
+
+test('browser, without performance or Temporal', function (t) {
+	t.teardown(mockProperty(global, 'performance', { 'delete': true }));
+	t.teardown(mockProperty(global, 'Temporal', { 'delete': true }));
 	t.teardown(requireStash(__dirname, '../browser'));
 
 	/** @type {import('../browser')} */
@@ -48,9 +62,28 @@ test('browser, without performance', function (t) {
 	t.end();
 });
 
+test('browser, new Date().getTime() tier', function (t) {
+	t.teardown(mockProperty(global, 'performance', { 'delete': true }));
+	t.teardown(mockProperty(global, 'Temporal', { 'delete': true }));
+	t.teardown(mockProperty(
+		/** @type {AsRecord<DateConstructor>} */ (Date),
+		'now',
+		{ 'delete': true }
+	));
+	t.teardown(requireStash(__dirname, 'get-intrinsic'));
+	t.teardown(requireStash(__dirname, '../browser'));
+
+	/** @type {import('../browser')} */
+	var bNow = require('../browser');
+
+	t.equal(typeof bNow(), 'number', 'returns a number via new Date().getTime()');
+
+	t.end();
+});
+
 test('fallback tiers', function (t) {
 	t.test('process.hrtime tier', { skip: !hasHrtime }, function (st) {
-		st.teardown(mockProperty(global, 'performance', { value: undefined }));
+		st.teardown(mockProperty(global, 'performance', { 'delete': true }));
 		st.teardown(requireStash(__dirname, '../'));
 
 		/** @type {import('../')} */
@@ -61,15 +94,31 @@ test('fallback tiers', function (t) {
 		st.end();
 	});
 
+	t.test('Temporal tier', { skip: !hasTemporal }, function (st) {
+		st.teardown(mockProperty(global, 'performance', { 'delete': true }));
+		st.teardown(mockProperty(
+			/** @type {AsRecord<typeof process>} */ (process),
+			'hrtime',
+			{ 'delete': true }
+		));
+		st.teardown(requireStash(__dirname, '../'));
+
+		/** @type {import('../')} */
+		var now = require('../');
+
+		st.equal(typeof now(), 'number', 'returns a number via Temporal.Now');
+
+		st.end();
+	});
+
 	t.test('Date.now tier', function (st) {
-		st.teardown(mockProperty(global, 'performance', { value: undefined }));
-		if (hasHrtime) {
-			st.teardown(mockProperty(
-				/** @type {AsRecord<typeof process>} */ (process),
-				'hrtime',
-				{ 'delete': true }
-			));
-		}
+		st.teardown(mockProperty(global, 'performance', { 'delete': true }));
+		st.teardown(mockProperty(
+			/** @type {AsRecord<typeof process>} */ (process),
+			'hrtime',
+			{ 'delete': true }
+		));
+		st.teardown(mockProperty(global, 'Temporal', { 'delete': true }));
 		st.teardown(requireStash(__dirname, '../'));
 
 		/** @type {import('../')} */
@@ -88,13 +137,12 @@ test('fallback tiers', function (t) {
 			'now',
 			{ 'delete': true }
 		));
-		if (hasHrtime) {
-			st.teardown(mockProperty(
-				/** @type {AsRecord<typeof process>} */ (process),
-				'hrtime',
-				{ 'delete': true }
-			));
-		}
+		st.teardown(mockProperty(
+			/** @type {AsRecord<typeof process>} */ (process),
+			'hrtime',
+			{ 'delete': true }
+		));
+		st.teardown(mockProperty(global, 'Temporal', { 'delete': true }));
 		st.teardown(requireStash(__dirname, 'get-intrinsic'));
 		st.teardown(requireStash(__dirname, '../'));
 

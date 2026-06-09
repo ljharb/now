@@ -3,6 +3,11 @@ import ljharb from '@ljharb/eslint-config/flat';
 export default [
 	...ljharb,
 	{
+		languageOptions: {
+			globals: {
+				Temporal: 'readonly',
+			},
+		},
 		rules: {
 			'func-style': ['error', 'declaration'],
 			'id-length': 'off',
