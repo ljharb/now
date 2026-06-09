@@ -48,6 +48,24 @@ test('browser, without performance, with Temporal', { skip: !hasTemporal }, func
 	t.end();
 });
 
+test('browser, with Temporal but without a usable getter', { skip: !hasTemporal }, function (t) {
+	t.teardown(mockProperty(global, 'performance', { 'delete': true }));
+	t.teardown(mockProperty(
+		/** @type {AsRecord<Temporal.Instant>} */ (Temporal.Instant.prototype),
+		'epochNanoseconds',
+		{ 'delete': true }
+	));
+	t.teardown(requireStash(__dirname, '../browser'));
+
+	/** @type {import('../browser')} */
+	var bNow = require('../browser');
+
+	t.equal(bNow, Date.now, 'falls through past Temporal to Date.now');
+	t.equal(typeof bNow(), 'number', 'returns a number');
+
+	t.end();
+});
+
 test('browser, without performance or Temporal', function (t) {
 	t.teardown(mockProperty(global, 'performance', { 'delete': true }));
 	t.teardown(mockProperty(global, 'Temporal', { 'delete': true }));
@@ -107,6 +125,29 @@ test('fallback tiers', function (t) {
 		var now = require('../');
 
 		st.equal(typeof now(), 'number', 'returns a number via Temporal.Now');
+
+		st.end();
+	});
+
+	t.test('Temporal tier, without a usable getter', { skip: !hasTemporal }, function (st) {
+		st.teardown(mockProperty(global, 'performance', { 'delete': true }));
+		st.teardown(mockProperty(
+			/** @type {AsRecord<typeof process>} */ (process),
+			'hrtime',
+			{ 'delete': true }
+		));
+		st.teardown(mockProperty(
+			/** @type {AsRecord<Temporal.Instant>} */ (Temporal.Instant.prototype),
+			'epochNanoseconds',
+			{ 'delete': true }
+		));
+		st.teardown(requireStash(__dirname, '../'));
+
+		/** @type {import('../')} */
+		var now = require('../');
+
+		st.equal(now, Date.now, 'falls through past Temporal to Date.now');
+		st.equal(typeof now(), 'number', 'returns a number');
 
 		st.end();
 	});
